@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Balaton Park Kiegészítő Programok</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-67602KDENV"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-67602KDENV');
+</script>
+<style>
+  :root {
+    --navy: #122036;
+    --navy-deep: #0a1422;
+    --red: #427ab7;
+    --red-glow: rgba(66, 122, 183, 0.45);
+    --ink: #f5f7fb;
+    --muted: rgba(245, 247, 251, 0.72);
+    --border: rgba(255,255,255,0.14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--navy-deep);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+  html { scroll-snap-type: y proximity; }
+  ::selection { background: var(--red); color: white; }
+  .progress {
+    position: fixed; top: 0; left: 0;
+    height: 3px; width: 0;
+    background: var(--red);
+    z-index: 100;
+    box-shadow: 0 0 10px var(--red-glow);
+    transition: width .15s ease-out;
+  }
+  .topbar {
+    position: fixed;
+    top: 0; right: 0;
+    padding: 22px 40px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    z-index: 50;
+    pointer-events: none;
+  }
+  .corner-logo {
+    position: fixed;
+    bottom: 28px;
+    right: 32px;
+    z-index: 50;
+    height: 56px;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 16px rgba(0,0,0,.55));
+    opacity: 0.95;
+    transition: opacity .3s;
+  }
+  .corner-logo.dim { opacity: 0.55; }
+  @media (max-width: 760px) {
+    .corner-logo { height: 38px; bottom: 18px; right: 18px; }
+  }
+  .section {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: hidden;
+    scroll-snap-align: start;
+    display: flex;
+    align-items: center;
+  }
+  .section::before, .section::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    height: 18vh;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .section::before {
+    top: 0;
+    background: linear-gradient(180deg, var(--navy-deep) 0%, rgba(10,20,34,0) 100%);
+  }
+  .section::after {
+    bottom: 0;
+    background: linear-gradient(0deg, var(--navy-deep) 0%, rgba(10,20,34,0) 100%);
+  }
+  .bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    z-index: 0;
+    transform: translateZ(0);
+    will-change: transform;
+  }
+  .bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10,20,34,.45) 0%, rgba(10,20,34,.7) 100%);
+  }
+  .section.dark .bg::after {
+    background: linear-gradient(180deg, rgba(10,20,34,.7) 0%, rgba(10,20,34,.92) 100%);
+  }
+  .section.side .bg::after {
+    background: linear-gradient(90deg, rgba(10,20,34,.92) 0%, rgba(10,20,34,.55) 55%, rgba(10,20,34,.15) 100%);
+  }
+  .content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    padding: 12vh 8vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .content.center { align-items: center; text-align: center; }
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 1s cubic-bezier(.22,.61,.36,1), transform 1s cubic-bezier(.22,.61,.36,1);
+  }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  .reveal.d1 { transition-delay: .15s; }
+  .reveal.d2 { transition-delay: .3s; }
+  .reveal.d3 { transition-delay: .45s; }
+  .reveal.d4 { transition-delay: .6s; }
+  .reveal.d5 { transition-delay: .75s; }
+  .reveal.slide-left { transform: translateX(-50px); }
+  .reveal.slide-left.in { transform: translateX(0); }
+  .reveal.slide-right { transform: translateX(50px); }
+  .reveal.slide-right.in { transform: translateX(0); }
+  .eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.32em;
+    font-size: clamp(11px, 1vw, 14px);
+    color: #a8cef0;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.55);
+  }
+  .eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 32px;
+    height: 2px;
+    background: #a8cef0;
+    vertical-align: middle;
+    margin-right: 14px;
+    transform: translateY(-3px);
+    box-shadow: 0 0 8px rgba(168, 206, 240, 0.5);
+  }
+  .eyebrow.light { color: #ffffff; }
+  .eyebrow.light::before { background: #ffffff; }
+  h1, h2, h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    line-height: 0.95;
+    text-transform: uppercase;
+    letter-spacing: -0.005em;
+  }
+  h1 { font-size: clamp(48px, 8.5vw, 130px); margin-bottom: 1.5rem; }
+  h2 { font-size: clamp(36px, 5.5vw, 86px); margin-bottom: 1.5rem; }
+  h3 { font-size: clamp(22px, 2.6vw, 38px); margin-bottom: 1rem; font-weight: 700; }
+  p {
+    font-size: clamp(15px, 1.25vw, 19px);
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 650px;
+  }
+  p.lead {
+    font-size: clamp(18px, 1.6vw, 24px);
+    color: var(--ink);
+    font-weight: 300;
+    max-width: 720px;
+  }
+  .red { color: var(--red); }
+  strong { color: var(--ink); font-weight: 600; }
+  .hero-title {
+    font-size: clamp(52px, 10vw, 160px);
+    line-height: 0.88;
+  }
+  .hero-title .line { display: block; }
+  .hero-title .accent { color: var(--red); }
+  .scroll-cue {
+    position: absolute;
+    bottom: 50px; left: 50%;
+    transform: translateX(-50%);
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    font-size: 11px;
+    z-index: 5;
+    animation: bounce 2.4s ease-in-out infinite;
+  }
+  .scroll-cue::after {
+    content: '';
+    display: block;
+    width: 1px; height: 32px;
+    background: linear-gradient(180deg, var(--red), transparent);
+    margin: 12px auto 0;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); opacity: .8; }
+    50% { transform: translateX(-50%) translateY(8px); opacity: 1; }
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 2.5rem;
+    margin-top: 3rem;
+    max-width: 860px;
+  }
+  .content.center .stats { margin-left: auto; margin-right: auto; }
+  .stat .num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(48px, 6vw, 88px);
+    line-height: 1;
+    color: var(--ink);
+  }
+  .stat .num .red-dot { color: var(--red); }
+  .stat .label {
+    font-family: 'Barlow Condensed', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: .5rem;
+  }
+  .two-col {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+    width: 100%;
+  }
+  .two-col .visual {
+    position: relative;
+    height: 65vh;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 30px 90px rgba(0,0,0,.5);
+  }
+  .two-col .visual img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 12s ease-out;
+    transform: scale(1.05);
+  }
+  .two-col .visual.in img { transform: scale(1); }
+  .pull {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: clamp(28px, 3.6vw, 56px);
+    line-height: 1.1;
+    max-width: 1200px;
+    color: var(--ink);
+  }
+  .pull .red { color: var(--red); }
+  /* Program items */
+  .program-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.6rem 2.5rem;
+    margin-top: 2.5rem;
+    max-width: 780px;
+  }
+  .program-grid.wide { max-width: 100%; }
+  .program-item {
+    border-left: 2px solid var(--red);
+    padding: .35rem 0 .5rem 1.25rem;
+  }
+  .program-item .num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--red);
+  }
+  .program-item .name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(15px, 1.5vw, 20px);
+    font-weight: 700;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-top: 3px;
+    line-height: 1.1;
+  }
+  .program-item .cap {
+    font-size: clamp(12px, 0.9vw, 13px);
+    color: var(--muted);
+    margin-top: 5px;
+    line-height: 1.45;
+  }
+  .note {
+    margin-top: 2rem;
+    font-size: clamp(13px, 1vw, 15px);
+    color: var(--muted);
+    font-style: italic;
+    max-width: 640px;
+    line-height: 1.55;
+    border-left: 2px solid rgba(66, 122, 183, 0.4);
+    padding-left: 1.25rem;
+  }
+  .spec-pair {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin-top: 2.5rem;
+    max-width: 640px;
+  }
+  .spec {
+    border-left: 2px solid var(--red);
+    padding: .25rem 0 .25rem 1.25rem;
+  }
+  .spec .k {
+    font-family: 'Barlow Condensed', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .spec .v {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(18px, 1.8vw, 26px);
+    font-weight: 700;
+    color: var(--ink);
+    margin-top: 4px;
+    line-height: 1.1;
+  }
+  .cta-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 3rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 32px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 15px;
+    transition: all .3s;
+    border: 1px solid transparent;
+  }
+  .btn.primary {
+    background: var(--red);
+    color: white;
+    box-shadow: 0 12px 40px var(--red-glow);
+  }
+  .btn.primary:hover { transform: translateY(-3px); box-shadow: 0 18px 50px var(--red-glow); }
+  .btn.ghost {
+    border-color: var(--border);
+    color: var(--ink);
+    background: rgba(255,255,255,0.04);
+  }
+  .btn.ghost:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); transform: translateY(-3px); }
+  .social-icons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.75rem;
+    justify-content: center;
+  }
+  .icon-btn {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    color: var(--ink);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .3s;
+    text-decoration: none;
+  }
+  .icon-btn:hover { background: var(--red); border-color: var(--red); transform: translateY(-3px); box-shadow: 0 12px 30px var(--red-glow); }
+  .icon-btn svg { width: 22px; height: 22px; }
+  footer {
+    padding: 40px;
+    text-align: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    border-top: 1px solid var(--border);
+  }
+  @media (max-width: 760px) {
+    html { scroll-snap-type: none; }
+    .two-col { grid-template-columns: 1fr; gap: 2rem; }
+    .two-col .visual { height: 38vh; min-height: 260px; }
+    .stats { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .program-grid { grid-template-columns: 1fr; }
+    .spec-pair { grid-template-columns: 1fr; gap: 1.25rem; }
+    .topbar { padding: 14px 16px; }
+    .content { padding: 10vh 6vw; }
+    .corner-logo { height: 34px; bottom: 14px; right: 14px; opacity: 0.85; }
+    .scroll-cue { bottom: 28px; font-size: 10px; }
+    .scroll-cue::after { height: 22px; }
+    .eyebrow { letter-spacing: 0.24em; margin-bottom: 1rem; }
+    .eyebrow::before { width: 22px; margin-right: 10px; }
+    .cta-buttons .btn { width: 100%; justify-content: center; }
+    .icon-btn { width: 56px; height: 56px; }
+  }
+  @media (hover: none) {
+    .icon-btn:hover, .btn.primary:hover, .btn.ghost:hover { transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<header class="topbar" id="topbar"></header>
+<img src="bpc-white-text-logo.png" alt="Balaton Park Circuit" class="corner-logo" id="cornerLogo">
+
+<main>
+
+  <!-- 1. HERO -->
+  <section class="section">
+    <div class="bg" style="background-image:url('aerial-circuit.jpg')"></div>
+    <div class="content">
+      <div class="eyebrow reveal light">A Magyar MotoGP helyszíne</div>
+      <h1 class="hero-title reveal d1">
+        <span class="line">BALATON PARK</span>
+        <span class="line"><span class="accent">KIEGÉSZÍTŐ</span></span>
+        <span class="line">PROGRAMOK.</span>
+      </h1>
+      <p class="lead reveal d2" style="margin-top:2rem;">16 egyedi élményprogram — a versenypályától a boxutcán és a paddockon át egészen a levegőbe.</p>
+    </div>
+    <div class="scroll-cue">Görgess</div>
+  </section>
+
+  <!-- 2. ÁTTEKINTÉS -->
+  <section class="section dark">
+    <div class="bg" style="background-image:url('tribunes.jpg')"></div>
+    <div class="content center">
+      <div class="eyebrow reveal">Az élmény minden formában</div>
+      <h2 class="reveal d1" style="text-align:center;">PÁLYA. PADDOCK.<br>BOX. <span class="red">LEVEGŐ.</span></h2>
+      <p class="lead reveal d2" style="text-align:center; max-width:780px;">Több mint 4 km-es aszfaltcsíkon, paddock területen, pit garázsokon és off-road pályán vár a Balaton Park Circuit — 16 program, amelyek együtt felejthetetlen rendezvénynapot alkotnak a Magyar MotoGP futam helyszínén.</p>
+      <div class="stats reveal d3">
+        <div class="stat">
+          <div class="num"><span data-count="16">0</span></div>
+          <div class="label">Egyedi program</div>
+        </div>
+        <div class="stat">
+          <div class="num">4<span class="red-dot">+</span></div>
+          <div class="label">Különböző helyszín</div>
+        </div>
+        <div class="stat">
+          <div class="num"><span data-count="100">0</span><span class="red-dot">+</span></div>
+          <div class="label">Vendég naponta</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. VERSENYPÁLYA PROGRAMOK (1–4) -->
+  <section class="section side">
+    <div class="bg" style="background-image:url('control-tower.jpg')"></div>
+    <div class="content">
+      <div class="eyebrow reveal">A pályán</div>
+      <h2 class="reveal d1">VERSENYPÁLYA<br>PROGRAMOK.</h2>
+      <p class="lead reveal d2">Négy különböző autós élményprogram a több mint 4 km-es aszfaltcsíkon — instruktori felvezetéstől az ügyességi feladatokig.</p>
+      <div class="program-grid reveal d3">
+        <div class="program-item">
+          <div class="num">Program 01</div>
+          <div class="name">Pályás autózás instruktorral</div>
+          <div class="cap">Saját autóval, profi vezető felvezetésével a valódi versenypályán</div>
+        </div>
+        <div class="program-item">
+          <div class="num">Program 02</div>
+          <div class="name">Race Taxi</div>
+          <div class="cap">Élmény a jobb oldalon — profi pilóta a volánnal, te az adrenalinnál</div>
+        </div>
+        <div class="program-item">
+          <div class="num">Program 03</div>
+          <div class="name">Átlagtartó verseny</div>
+          <div class="cap">Nem a sebesség, hanem a stratégia és a precizitás dönt</div>
+        </div>
+        <div class="program-item">
+          <div class="num">Program 04</div>
+          <div class="name">Ügyességi feladatok</div>
+          <div class="cap">Sofőrtechnikai kihívások a versenypályán, időre mérve</div>
+        </div>
+      </div>
+      <p class="note reveal d4">Átlagosan 5 autóval, 60 perc alatt 20–30 vendég teljesítheti a programot. Egyszerre két csoport is tartózkodhat a pályán.</p>
+    </div>
+  </section>
+
+  <!-- 4. PULL QUOTE -->
+  <section class="section dark">
+    <div class="bg" style="background-image:url('motogp-rider.jpg')"></div>
+    <div class="content">
+      <div class="eyebrow reveal">Az élmény</div>
+      <p class="pull reveal d1">Ugyanaz az aszfalt, ahol a MotoGP sztárok száguldottak. <span class="red">Most a vendégek következnek.</span></p>
+    </div>
+  </section>
+
+  <!-- 5. PADDOCK PROGRAMOK (5–9) -->
+  <section class="section dark">
+    <div class="bg" style="background-image:url('pit-garages.jpg')"></div>
+    <div class="content">
+      <div class="two-col">
+        <div>
+          <div class="eyebrow reveal">A paddockon</div>
+          <h2 class="reveal d1">PADDOCK<br>PROGRAMOK.</h2>
+          <p class="lead reveal d2">Öt program a paddock területén — vizes útburkolaton, szlalompályán és az idő ellen küzdve.</p>
+          <div class="program-grid wide reveal d3">
+            <div class="program-item">
+              <div class="num">Program 05</div>
+              <div class="name">Vezetéstechnikai program</div>
+              <div class="cap">Vizes pályán: fékezés, kanyarodás, drift alapok — 120 perc / 20 fő</div>
+            </div>
+            <div class="program-item">
+              <div class="num">Program 06</div>
+              <div class="name">Városi szlalom</div>
+              <div class="cap">Kisautóval szűk pályán, minél rövidebb idő alatt — 60 perc / 20–30 fő</div>
+            </div>
+            <div class="program-item">
+              <div class="num">Program 07</div>
+              <div class="name">Tolatós szlalom</div>
+              <div class="cap">Visszapillantóból tájékozódva, időre — 60 perc / 15–20 fő</div>
+            </div>
+            <div class="program-item">
+              <div class="num">Program 08</div>
+              <div class="name">1/100</div>
+              <div class="cap">Pontosan a megadott időre — nem gyorsabban — 60 perc / 20–30 fő</div>
+            </div>
+            <div class="program-item">
+              <div class="num">Program 09</div>
+              <div class="name">Vízhordás</div>
+              <div class="cap">Autóból kancsóval, minél több vizet a célba — 60 perc / 8–12 fő</div>
+            </div>
+          </div>
+        </div>
+        <div class="visual reveal slide-right">
+          <img src="img-007.jpg" alt="Paddock programok">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. BOX PROGRAMOK (10–13) -->
+  <section class="section">
+    <div class="bg" style="background-image:url('img-012.jpg')"></div>
+    <div class="content">
+      <div class="two-col">
+        <div class="visual reveal slide-left">
+          <img src="img-008.jpg" alt="Boxok programjai">
+        </div>
+        <div>
+          <div class="eyebrow reveal d1">A boxutcában</div>
+          <h2 class="reveal d2">PROGRAMOK<br>A BOXOKBAN.</h2>
+          <p class="lead reveal d3">Négy program a pit garázsokban — szimulátortól kerékcsere-rekord-kísérletig, ahol mindenki versenycsapattagnak érezheti magát.</p>
+          <div class="program-grid reveal d4" style="margin-top:2rem; max-width:100%;">
+            <div class="program-item">
+              <div class="num">Program 10</div>
+              <div class="name">Pakolás</div>
+              <div class="cap">Kis autó, sok csomag, kevés idő — 60 perc / 8–12 fő</div>
+            </div>
+            <div class="program-item">
+              <div class="num">Program 11</div>
+              <div class="name">Versenyautó-szimulátor</div>
+              <div class="cap">Valódi pálya, valódi köridők — 60 perc / 6–10 fő / szimulátor</div>
+            </div>
+            <div class="program-item">
+              <div class="num">Program 12</div>
+              <div class="name">Kerékcsere-szimulátor</div>
+              <div class="cap">Csapatban, a lehető legrövidebb idő alatt — 60 perc / 8–12 fő</div>
+            </div>
+            <div class="program-item">
+              <div class="num">Program 13</div>
+              <div class="name">Batak reakcióidő fejlesztő</div>
+              <div class="cap">Pilótareflexek tesztelése — 60 perc / 10–20 fő</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. OFF-ROAD (14) -->
+  <section class="section dark">
+    <div class="bg" style="background-image:url('img-009.jpg')"></div>
+    <div class="content">
+      <div class="eyebrow reveal">Terepen</div>
+      <h2 class="reveal d1">OFF-ROAD<br>PROGRAMOK.</h2>
+      <p class="lead reveal d2">Kiépített off-road pályánkon vendégeink nehéz körülmények között tesztelhetik vezetési tudásukat — az általunk biztosított terepjárókkal vagy saját 4×4-es autókkal.</p>
+      <p class="reveal d3" style="margin-top:1.5rem;"><strong>Crazy Car kiegészítő:</strong> Bolondos autók az off-road pálya területén — egyszerűnek tűnő feladatok, amik becsapósak lehetnek. A nevetés garantált.</p>
+      <p class="note reveal d4">60 perc alatt, 2 db 4×4 autóval és 1 db Crazy Car-ral: 8–16 vendég</p>
+    </div>
+  </section>
+
+  <!-- 8. VERSENYIRÁNYÍTÁS + HELIKOPTER (15–16) -->
+  <section class="section">
+    <div class="bg" style="background-image:url('grandstand-motogp.jpg')"></div>
+    <div class="content">
+      <div class="two-col">
+        <div>
+          <div class="eyebrow reveal">Különleges élmények</div>
+          <h2 class="reveal d1">KULISSZÁK<br>MÖGÖTT.</h2>
+          <div class="spec-pair reveal d2">
+            <div class="spec">
+              <div class="k">Program 15</div>
+              <div class="v">Versenyirányítás látogatás</div>
+            </div>
+            <div class="spec">
+              <div class="k">Program 16</div>
+              <div class="v">Helikopterezés</div>
+            </div>
+          </div>
+          <p class="reveal d3" style="margin-top:2rem;"><strong>Versenyirányítás:</strong> A versenypálya agya — ahol minden kamera, minden rádiócsatorna és minden döntés összefut. Kulisszák mögötti túra, opcionálisan kvízzzel kiegészítve.<br><span style="color:var(--muted);font-size:0.88em;">Max. 20 fő · 20–40 perc / turnus, kvíz +15 perc</span></p>
+          <p class="reveal d4" style="margin-top:1.5rem;"><strong>Helikopterezés:</strong> Fentről gyönyörű látványt nyújt a pálya és a Balaton — sétarepüléssel vagy extrém manőverekkel. Felejthetetlen minden résztvevőnek.<br><span style="color:var(--muted);font-size:0.88em;">5 fő / menet · ~30 perc / menet</span></p>
+        </div>
+        <div class="visual reveal slide-right">
+          <img src="lake-aerial.jpg" alt="Helikopteres kilátás — Balaton Park Circuit">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. CTA -->
+  <section class="section dark">
+    <div class="bg" style="background-image:url('aerial-circuit.jpg')"></div>
+    <div class="content center">
+      <div class="eyebrow reveal">Szervezzük meg együtt</div>
+      <h2 class="reveal d1" style="text-align:center;">A TELJES PROGRAM<br><span class="red">A MI FELADATUNK.</span></h2>
+      <p class="lead reveal d2" style="text-align:center;">A rendezvény programjának teljeskörű összeállítását vállaljuk, a létszám és a rendelkezésre álló idő figyelembevételével. Célunk: autósportos, benzingőzös, különleges élmény a Magyar MotoGP futam helyszínén.</p>
+      <div class="cta-buttons reveal d3">
+        <a href="mailto:events@balatonparkcircuit.com" class="btn primary">
+          Írjon nekünk <span>→</span>
+        </a>
+        <a href="mailto:operation@balatonparkcircuit.com" class="btn ghost">
+          Operáció
+        </a>
+      </div>
+      <div class="social-icons reveal d4">
+        <a href="https://balatonpark.com" target="_blank" class="icon-btn" aria-label="Weboldal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </a>
+        <a href="https://instagram.com/balatonpark" target="_blank" class="icon-btn" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a href="https://wa.me/36306307574" target="_blank" class="icon-btn" aria-label="WhatsApp">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  © Balaton Park Circuit · <a href="https://balatonparkcircuit.com" target="_blank" style="color:inherit;">balatonparkcircuit.com</a>
+</footer>
+
+<script>
+  const progress = document.getElementById('progress');
+  const parallaxEnabled = window.matchMedia('(pointer: fine)').matches && window.innerWidth > 760;
+
+  function onScroll() {
+    const h = document.documentElement;
+    const pct = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+    progress.style.width = pct + '%';
+    if (!parallaxEnabled) return;
+    document.querySelectorAll('.section').forEach(s => {
+      const r = s.getBoundingClientRect();
+      if (r.bottom > 0 && r.top < window.innerHeight) {
+        const bg = s.querySelector('.bg');
+        if (bg) {
+          const offset = r.top * 0.25;
+          bg.style.transform = `translateY(${-offset}px) scale(1.1)`;
+        }
+      }
+    });
+  }
+
+  document.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        e.target.querySelectorAll('[data-count]').forEach(c => {
+          if (c.dataset.done) return;
+          c.dataset.done = '1';
+          const target = parseInt(c.dataset.count, 10);
+          const duration = 1400;
+          const start = performance.now();
+          function step(now) {
+            const t = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - t, 3);
+            c.textContent = Math.round(target * eased);
+            if (t < 1) requestAnimationFrame(step);
+          }
+          requestAnimationFrame(step);
+        });
+      }
+    });
+  }, { threshold: 0.18 });
+
+  document.querySelectorAll('.reveal, .visual').forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
